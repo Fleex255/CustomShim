@@ -4,7 +4,7 @@
 
 SHIM_INSTANCE(FakeSchTask)
 
-void Shim_FakeSchTask::Notify(DWORD notification, PVOID data) {
+void Shim_FakeSchTask::HandleNotification(DWORD notification, PVOID data) {
 	if (notification != SE_NOTIFY_INIT) return;
 	SE_COM_AddServer(L"TASKSCHD.DLL", FALSE);
 	if (!SE_COM_AddHook(shimId, CLSID_TaskScheduler, IID_ITaskService, 7, Hook_ITaskService_GetFolder)) {

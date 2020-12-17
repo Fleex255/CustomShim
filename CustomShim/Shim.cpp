@@ -22,8 +22,6 @@ PHOOKAPI Shim::Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks) {
 	} else {
 		commandLine = "";
 	}
-	shimId = SE_GetShimId(thisModule, name);
-	ASL_PRINTF(ASL_LEVEL_TRACE, "%S has ID %d", name, shimId);
 	if (!ParseCommandLine(commandLine)) {
 		ASL_PRINTF(ASL_LEVEL_TRACE, "%S rejected command-line arguments", name);
 		*pdwNumHooks = FAIL_SHIM_LOAD;
@@ -40,7 +38,15 @@ PHOOKAPI Shim::Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks) {
 	return pHookApi;
 }
 
-void Shim::Notify(DWORD notification, PVOID data) {}
+void Shim::Notify(DWORD notification, PVOID data) {
+	if (notification == SE_NOTIFY_INIT) {
+		shimId = SE_GetShimId(thisModule, name);
+		ASL_PRINTF(ASL_LEVEL_TRACE, "%S has ID %d", name, shimId);
+	}
+	HandleNotification(notification, data);
+}
+
+void Shim::HandleNotification(DWORD notification, PVOID data) {}
 
 HOOKAPI Shim::MakeHookInfo(LPCSTR dll, LPCSTR function, LPVOID hook) {
 	HOOKAPI hookInfo = { 0 };

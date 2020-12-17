@@ -23,7 +23,8 @@ public:
 	Shim& operator=(const Shim&) = delete;
 	LPCWSTR GetName();
 	PHOOKAPI Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks);
-	virtual void Notify(DWORD notification, PVOID data);
+	void Notify(DWORD notification, PVOID data);
+	virtual void HandleNotification(DWORD notification, PVOID data);
 	virtual ~Shim() = default;
 protected:
 	LPCSTR commandLine;
