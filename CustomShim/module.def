@@ -1,0 +1,4 @@
+LIBRARY CustomShim
+EXPORTS
+	GetHookAPIs
+	NotifyShims
