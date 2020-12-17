@@ -165,7 +165,7 @@
   <ItemGroup>
     <ClInclude Include="apphelp.h" />
     <ClInclude Include="dllmain.h" />
-    <ClInclude Include="FakeScheduledTask.hpp" />
+    <ClInclude Include="taskfakes.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Shim.h" />
     <ClInclude Include="shimlist.h" />
@@ -182,6 +182,7 @@
     <ClCompile Include="Shim_FakeSchTask.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="idispatch.hxx" />
     <None Include="module.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

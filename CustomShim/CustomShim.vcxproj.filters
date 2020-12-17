@@ -36,7 +36,7 @@
     <ClInclude Include="Shim_FakeSchTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FakeScheduledTask.hpp">
+    <ClInclude Include="taskfakes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -66,6 +66,9 @@
   <ItemGroup>
     <None Include="module.def">
       <Filter>Source Files</Filter>
+    </None>
+    <None Include="idispatch.hxx">
+      <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
 </Project>

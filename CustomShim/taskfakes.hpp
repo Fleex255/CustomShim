@@ -1,9 +1,54 @@
 #pragma once
 #include <taskschd.h>
 
+class FakeTaskCollection : public IRegisteredTaskCollection {
+private:
+	IRegisteredTaskCollection* realCollection;
+	IRegisteredTask* fakeTask;
+public:
+	FakeTaskCollection(IRegisteredTaskCollection* setNext, IRegisteredTask* setFakeTask) {
+		realCollection = setNext;
+		fakeTask = setFakeTask;
+	}
+	~FakeTaskCollection() {
+		realCollection->Release();
+	}
+	FakeTaskCollection(const FakeTaskCollection&) = delete;
+	FakeTaskCollection& operator=(const FakeTaskCollection&) = delete;
+#define IID_CURRENT IID_IRegisteredTaskCollection
+#include "idispatch.hxx"
+	IFACEMETHOD(get_Count)(LONG* pResult) {
+		HRESULT result = realCollection->get_Count(pResult);
+		if (SUCCEEDED(result)) {
+			ASL_PRINTF(ASL_LEVEL_TRACE, "Real IRegisteredTaskCollection::get_Count returned %d; will increment count(%d)", result, *pResult);
+			*pResult += 1;
+		}
+		return result;
+	}
+	IFACEMETHOD(get_Item)(VARIANT index, IRegisteredTask** ppResult) {
+		if (FAILED(VariantChangeType(&index, &index, VARIANT_NOVALUEPROP, VT_I4))) {
+			ASL_PRINTF(ASL_LEVEL_MARK, "Could not coerce index of type %d to I4", index.vt);
+			return E_INVALIDARG;
+		}
+		if (index.lVal == 1) {
+			fakeTask->AddRef();
+			*ppResult = fakeTask;
+			ASL_PRINTF(ASL_LEVEL_TRACE, "Returning fake task for item #1");
+			return S_OK;
+		} else {
+			ASL_PRINTF(ASL_LEVEL_TRACE, "Forwarding request for #%d to real #%d", index.lVal, index.lVal - 1);
+			index.lVal--;
+			return realCollection->get_Item(index, ppResult);
+		}
+	}
+	IFACEMETHOD(get__NewEnum)(IUnknown** ppResult) {
+		if (ppResult) *ppResult = NULL;
+		return ppResult ? E_NOTIMPL : E_INVALIDARG;
+	}
+};
+
 class FakeScheduledTask : public IRegisteredTask {
 private:
-	volatile unsigned cRef = 1;
 	LPWSTR fakeTaskPath;
 	ITaskDefinition* fakeTaskDefinition;
 public: 
@@ -19,41 +64,8 @@ public:
 	}
 	FakeScheduledTask(const FakeScheduledTask&) = delete;
 	FakeScheduledTask& operator=(const FakeScheduledTask&) = delete;
-	IFACEMETHOD(QueryInterface)(REFIID riid, void** ppv) override {
-		if (!ppv) return E_INVALIDARG;
-		*ppv = NULL;
-		if (riid == IID_IUnknown || riid == IID_IDispatch || riid == IID_IRegisteredTask) {
-			*ppv = (PVOID) this;
-			AddRef();
-			return S_OK;
-		} else {
-			return E_NOINTERFACE;
-		}
-	}
-	IFACEMETHOD_(ULONG, AddRef)() override {
-		InterlockedIncrement(&cRef);
-		return cRef;
-	}
-	IFACEMETHOD_(ULONG, Release)() override {
-		InterlockedDecrement(&cRef);
-		unsigned localRef = cRef;
-		if (cRef == 0) delete this;
-		return localRef;
-	}
-	IFACEMETHOD(GetTypeInfoCount)(UINT* pCount) override {
-		if (pCount) *pCount = 0;
-		return S_OK;
-	}
-	IFACEMETHOD(GetTypeInfo)(UINT iTInfo, LCID, ITypeInfo** ppResult) override {
-		if (ppResult) *ppResult = NULL;
-		return iTInfo == 0 ? E_NOTIMPL : DISP_E_BADINDEX;
-	}
-	IFACEMETHOD(GetIDsOfNames)(REFIID, LPOLESTR*, UINT, LCID, DISPID*) override {
-		return E_NOTIMPL;
-	}
-	IFACEMETHOD(Invoke)(DISPID, REFIID, LCID, WORD, DISPPARAMS*, VARIANT*, EXCEPINFO*, UINT*) override {
-		return DISP_E_MEMBERNOTFOUND;
-	}
+#define IID_CURRENT IID_IRegisteredTask
+#include "idispatch.hxx"
 	IFACEMETHOD(get_Name)(BSTR* pResult) override {
 		if (pResult) *pResult = SysAllocString(&fakeTaskPath[1]);
 		return pResult ? S_OK : E_INVALIDARG;
