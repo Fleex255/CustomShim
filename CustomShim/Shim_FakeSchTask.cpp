@@ -18,6 +18,10 @@ void Shim_FakeSchTask::Notify(DWORD notification, PVOID data) {
 	}
 }
 
+bool Shim_FakeSchTask::ParseCommandLine(LPCSTR args) {
+	return strstr(args, "\\") == NULL;
+}
+
 std::vector<HOOKAPI> Shim_FakeSchTask::GetHooks() {
 	return std::vector<HOOKAPI>();
 }

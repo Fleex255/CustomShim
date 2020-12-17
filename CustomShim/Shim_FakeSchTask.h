@@ -7,6 +7,7 @@ public:
 	Shim_FakeSchTask();
 	virtual void Notify(DWORD notification, PVOID data);
 protected:
+	virtual bool ParseCommandLine(LPCSTR args);
 	virtual std::vector<HOOKAPI> GetHooks();
 private:
 	IRegisteredTask* fakeTask = NULL;

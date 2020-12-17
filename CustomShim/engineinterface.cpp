@@ -17,7 +17,10 @@ EXTERN_C PHOOKAPI WINAPI GetHookAPIs(LPSTR pszArgs, LPWSTR pwszShim, PDWORD pdwH
 	for (Shim* shim : *knownShims) {
 		if (_wcsicmp(pwszShim, shim->GetName()) == 0) {
 			PHOOKAPI apiHooks = shim->Install(pszArgs, pdwHookCount);
-			if (apiHooks == NULL && *pdwHookCount < 0) return NULL;
+			if (apiHooks == NULL && *pdwHookCount == FAIL_SHIM_LOAD) {
+				*pdwHookCount = 0;
+				return NULL;
+			}
 			activeShims->push_back(shim);
 			return apiHooks;
 		}
