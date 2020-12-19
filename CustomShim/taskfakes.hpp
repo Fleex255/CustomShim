@@ -1,7 +1,8 @@
 #pragma once
 #include <taskschd.h>
+#include "comstubs.hpp"
 
-class FakeTaskCollection : public IRegisteredTaskCollection {
+class FakeTaskCollection : public DispatchStub<IRegisteredTaskCollection, IID_IRegisteredTaskCollection> {
 private:
 	IRegisteredTaskCollection* realCollection;
 	IRegisteredTask* fakeTask;
@@ -10,14 +11,10 @@ public:
 		realCollection = setNext;
 		fakeTask = setFakeTask;
 	}
-	~FakeTaskCollection() {
+	~FakeTaskCollection() override {
 		realCollection->Release();
 	}
-	FakeTaskCollection(const FakeTaskCollection&) = delete;
-	FakeTaskCollection& operator=(const FakeTaskCollection&) = delete;
-#define IID_CURRENT IID_IRegisteredTaskCollection
-#include "idispatch.hxx"
-	IFACEMETHOD(get_Count)(LONG* pResult) {
+	IFACEMETHOD(get_Count)(LONG* pResult) override {
 		HRESULT result = realCollection->get_Count(pResult);
 		if (SUCCEEDED(result)) {
 			ASL_PRINTF(ASL_LEVEL_TRACE, "Real IRegisteredTaskCollection::get_Count returned %d; will increment count(%d)", result, *pResult);
@@ -25,7 +22,7 @@ public:
 		}
 		return result;
 	}
-	IFACEMETHOD(get_Item)(VARIANT index, IRegisteredTask** ppResult) {
+	IFACEMETHOD(get_Item)(VARIANT index, IRegisteredTask** ppResult) override {
 		if (FAILED(VariantChangeType(&index, &index, VARIANT_NOVALUEPROP, VT_I4))) {
 			ASL_PRINTF(ASL_LEVEL_MARK, "Could not coerce index of type %d to I4", index.vt);
 			return E_INVALIDARG;
@@ -41,13 +38,13 @@ public:
 			return realCollection->get_Item(index, ppResult);
 		}
 	}
-	IFACEMETHOD(get__NewEnum)(IUnknown** ppResult) {
+	IFACEMETHOD(get__NewEnum)(IUnknown** ppResult) override {
 		if (ppResult) *ppResult = NULL;
 		return ppResult ? E_NOTIMPL : E_INVALIDARG;
 	}
 };
 
-class FakeScheduledTask : public IRegisteredTask {
+class FakeScheduledTask : public DispatchStub<IRegisteredTask, IID_IRegisteredTask> {
 private:
 	LPWSTR fakeTaskPath;
 	ITaskDefinition* fakeTaskDefinition;
@@ -62,10 +59,6 @@ public:
 	~FakeScheduledTask() {
 		delete[] fakeTaskPath;
 	}
-	FakeScheduledTask(const FakeScheduledTask&) = delete;
-	FakeScheduledTask& operator=(const FakeScheduledTask&) = delete;
-#define IID_CURRENT IID_IRegisteredTask
-#include "idispatch.hxx"
 	IFACEMETHOD(get_Name)(BSTR* pResult) override {
 		if (pResult) *pResult = SysAllocString(&fakeTaskPath[1]);
 		return pResult ? S_OK : E_INVALIDARG;
