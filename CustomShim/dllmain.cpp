@@ -1,6 +1,6 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
-
 #include "dllmain.h"
+
+// The entry point for the DLL.
 
 HMODULE thisModule = NULL;
 
@@ -9,6 +9,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
                       LPVOID lpReserved) {
     switch (ul_reason_for_call) {
         case DLL_PROCESS_ATTACH:
+            // Record the HMODULE for later use in getting shim IDs
             thisModule = hModule;
             DisableThreadLibraryCalls(hModule);
             break;

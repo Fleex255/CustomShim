@@ -2,6 +2,8 @@
 #include "dllmain.h"
 #include <strsafe.h>
 
+// This file implements the Shim base class.
+
 Shim::Shim(LPCWSTR setName) {
 	name = setName;
 	apiHooks = NULL;
@@ -15,6 +17,7 @@ LPCWSTR Shim::GetName() {
 
 PHOOKAPI Shim::Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks) {
 	if (pszCommandLine) {
+		// The shim engine will free the command line string after calling GetHookAPIs, so make a copy
 		int cch = strlen(pszCommandLine) + 1;
 		LPSTR copied = new char[cch];
 		StringCchCopyA(copied, cch, pszCommandLine);
@@ -26,13 +29,18 @@ PHOOKAPI Shim::Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks) {
 		ASL_PRINTF(ASL_LEVEL_TRACE, "%S rejected command-line arguments", name);
 		return NULL;
 	}
+	// Copy the hooks vector into a C array
 	auto hooks = GetHooks();
 	PHOOKAPI pHookApi = new HOOKAPI[hooks.size()];
 	for (unsigned i = 0; i < hooks.size(); i++) {
+#pragma warning(push)
+#pragma warning(disable: 6386) // The size()-based allocation confuses the overrun checker
 		pHookApi[i] = hooks[i];
+#pragma warning(pop)
 	}
 	*pdwNumHooks = hooks.size();
 	ASL_PRINTF(ASL_LEVEL_TRACE, "%S installed %d hooks", name, *pdwNumHooks);
+	// Hold on to the array so the shim can get the NextFunction addresses after the shim engine sets them
 	apiHooks = pHookApi;
 	return pHookApi;
 }
@@ -44,8 +52,6 @@ void Shim::Notify(DWORD notification, PVOID data) {
 	}
 	HandleNotification(notification, data);
 }
-
-void Shim::HandleNotification(DWORD notification, PVOID data) {}
 
 HOOKAPI Shim::MakeHookInfo(LPCSTR dll, LPCSTR function, LPVOID hook) {
 	HOOKAPI hookInfo = { 0 };
@@ -69,5 +75,10 @@ PVOID Shim::GetNextProcAddress(int hookIndex) {
 }
 
 bool Shim::ParseCommandLine(LPCSTR args) {
+	// By default, command-line arguments are ignored and the shim can load
 	return true;
+}
+
+void Shim::HandleNotification(DWORD notification, PVOID data) {
+	// No response by default
 }

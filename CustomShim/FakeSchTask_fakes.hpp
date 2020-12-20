@@ -2,9 +2,13 @@
 #include <taskschd.h>
 #include "comstubs.hpp"
 
+// This file contains COM implementations used by the FakeSchTask example shim.
+// If you are not using that shim, you can delete this file.
+
+// Wraps an IRegisteredTaskCollection to insert a given fake scheduled task at the start of the task list.
 class FakeTaskCollection : public DispatchStub<IRegisteredTaskCollection, IID_IRegisteredTaskCollection> {
 private:
-	IRegisteredTaskCollection* realCollection;
+	IRegisteredTaskCollection* realCollection; // Owned by this wrapper
 	IRegisteredTask* fakeTask;
 public:
 	FakeTaskCollection(IRegisteredTaskCollection* setNext, IRegisteredTask* setFakeTask) {
@@ -15,9 +19,11 @@ public:
 		realCollection->Release();
 	}
 	IFACEMETHOD(get_Count)(LONG* pResult) override {
+		// Get the real count of tasks...
 		HRESULT result = realCollection->get_Count(pResult);
 		if (SUCCEEDED(result)) {
 			ASL_PRINTF(ASL_LEVEL_TRACE, "Real IRegisteredTaskCollection::get_Count returned %d; will increment count(%d)", result, *pResult);
+			// ...then add one
 			*pResult += 1;
 		}
 		return result;
@@ -30,29 +36,35 @@ public:
 			return E_INVALIDARG;
 		}
 		if (index.lVal == 1) {
-			fakeTask->AddRef();
+			// Make the fake task the first one in the list (IDispatch collections usually use 1-based indexing)
+			fakeTask->AddRef(); // The caller will Release the task after it's done examining it
 			*ppResult = fakeTask;
 			ASL_PRINTF(ASL_LEVEL_TRACE, "Returning fake task for item #1");
 			return S_OK;
 		} else {
+			// Inserting the fake task bumps up the index of all the real ones, so decrement the index before passing on the request
 			ASL_PRINTF(ASL_LEVEL_TRACE, "Forwarding request for #%d to real #%d", index.lVal, index.lVal - 1);
 			index.lVal--;
 			return realCollection->get_Item(index, ppResult);
 		}
 	}
 	IFACEMETHOD(get__NewEnum)(IUnknown** ppResult) override {
+		// Script clients would need an IEnumVARIANT, but that's not necessary for this demo
 		if (ppResult) *ppResult = NULL;
 		return ppResult ? E_NOTIMPL : E_INVALIDARG;
 	}
 };
 
+// An IRegisteredTask representing a nonexistent scheduled task with a given name and definition.
+// Only essential methods are implemented; the rest are stubs.
 class FakeScheduledTask : public DispatchStub<IRegisteredTask, IID_IRegisteredTask> {
 private:
-	LPWSTR fakeTaskPath;
-	ITaskDefinition* fakeTaskDefinition;
+	LPWSTR fakeTaskPath; // A leading backslash can be skipped to recover the unqualified name
+	ITaskDefinition* fakeTaskDefinition; // Registration details of the fake task
 public: 
 	FakeScheduledTask(LPCSTR setName, ITaskDefinition* setTaskDefinition) {
 		fakeTaskDefinition = setTaskDefinition;
+		// Widen the name/path string (originally given by shim arguments)
 		int neededChars = MultiByteToWideChar(CP_UTF8, 0, setName, -1, NULL, 0);
 		fakeTaskPath = new wchar_t[neededChars + 1];
 		fakeTaskPath[0] = '\\';
@@ -62,10 +74,12 @@ public:
 		delete[] fakeTaskPath;
 	}
 	IFACEMETHOD(get_Name)(BSTR* pResult) override {
+		// Copy the path to a new BSTR skipping the leading backslash, leaving just the name
 		if (pResult) *pResult = SysAllocString(&fakeTaskPath[1]);
 		return pResult ? S_OK : E_INVALIDARG;
 	}
 	IFACEMETHOD(get_Path)(BSTR* pResult) override {
+		// Copy the whole path
 		if (pResult) *pResult = SysAllocString(fakeTaskPath);
 		return pResult ? S_OK : E_INVALIDARG;
 	}
@@ -109,7 +123,7 @@ public:
 		ASL_PRINTF(ASL_LEVEL_TRACE, "Task definition requested");
 		if (ppResult) {
 			*ppResult = fakeTaskDefinition;
-			fakeTaskDefinition->AddRef();
+			fakeTaskDefinition->AddRef(); // The caller will Release the definition object
 		}
 		return ppResult ? S_OK : E_INVALIDARG;
 	}

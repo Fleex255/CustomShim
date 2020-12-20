@@ -1,6 +1,9 @@
 #pragma once
 #include <OAIdl.h>
 
+// This file provides simple implementations of IUnknown and IDispatch, which may be useful for COM-hooking shims.
+// If you are not hooking any COM functions, you do not need this file.
+
 template<REFIID I1, REFIID I2, REFIID... IRest>
 static bool IsRecognizedIID(REFIID riid) {
 	return I1 == riid || IsRecognizedIID<I2, IRest...>(riid);
@@ -11,6 +14,8 @@ static bool IsRecognizedIID(REFIID riid) {
 	return I == riid;
 }
 
+// Base class for implementations of COM classes without branching inheritance chains.
+// T is the most derived interface implemented; I is the IIDs of all implemented interfaces below IUnknown.
 template<typename T, REFIID... I>
 class SimpleComObject : public T {
 	static_assert(std::is_base_of<IUnknown, T>::value, "All COM objects must derive from IUnknown");
@@ -45,6 +50,8 @@ public:
 	}
 };
 
+// Stub IDispatch implementation, since actual dispatch functionality is not needed for this demo.
+// T is again the most derived interface implemented; I is the IIDs of all implemented interfaces below IDispatch.
 template<typename T, REFIID... I>
 class DispatchStub : public SimpleComObject<T, IID_IDispatch, I...> {
 public:
