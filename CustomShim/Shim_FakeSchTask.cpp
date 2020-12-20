@@ -57,8 +57,9 @@ HRESULT STDMETHODCALLTYPE Shim_FakeSchTask::Hook_ITaskService_GetFolder(ITaskSer
 		instance->fakeTask = new FakeScheduledTask(taskName, fakeTaskDefinition);
 		ASL_PRINTF(ASL_LEVEL_TRACE, "Prepared fake task and definition");
 	}
-	// The REQUIRE_NEXT macro takes a function signature and pointer, and initializes a "next" variable pointing to the corresponding real function
-	REQUIRE_NEXT(HRESULT(STDMETHODCALLTYPE*)(ITaskService*, BSTR, ITaskFolder**), Hook_ITaskService_GetFolder);
+	// The REQUIRE_COM_NEXT macro takes a function pointer and initializes a "next" variable pointing to the corresponding real function
+	// The first parameter to COM hook functions must be named "pThis" for the macro to work
+	REQUIRE_COM_NEXT(Hook_ITaskService_GetFolder);
 	// Call the real ITaskService::GetFolder
 	HRESULT result = next(pThis, path, ppResult);
 	ASL_PRINTF(ASL_LEVEL_TRACE, "ITaskService::GetFolder returned %d for %S", result, path);
@@ -83,7 +84,7 @@ HRESULT STDMETHODCALLTYPE Shim_FakeSchTask::Hook_ITaskFolder_GetTask(ITaskFolder
 		return S_OK;
 	} else {
 		// If not, pass the request along to the real ITaskFolder
-		REQUIRE_NEXT(HRESULT(STDMETHODCALLTYPE*)(ITaskFolder*, BSTR, IRegisteredTask**), Hook_ITaskFolder_GetTask);
+		REQUIRE_COM_NEXT(Hook_ITaskFolder_GetTask);
 		return next(pThis, path, ppResult);
 	}
 }
@@ -95,7 +96,7 @@ HRESULT STDMETHODCALLTYPE Shim_FakeSchTask::Hook_ITaskFolder_GetTasks(ITaskFolde
 	HRESULT result = pThis->get_Name(&folderName);
 	if (FAILED(result)) return result;
 	// Call the real ITaskFolder::GetTasks to obtain the real collection of registered tasks in this folder
-	REQUIRE_NEXT(HRESULT(STDMETHODCALLTYPE*)(ITaskFolder*, LONG, IRegisteredTaskCollection**), Hook_ITaskFolder_GetTasks);
+	REQUIRE_COM_NEXT(Hook_ITaskFolder_GetTasks);
 	result = next(pThis, flags, ppResult);
 	ASL_PRINTF(ASL_LEVEL_TRACE, "ITaskFolder::GetTasks returned %d for %S; flags(%d) pResult(%p)", result, folderName, flags, (void*) *ppResult);
 	if (SUCCEEDED(result) && wcscmp(folderName, L"\\") == 0) {

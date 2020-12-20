@@ -5,19 +5,18 @@
 // This macro defines the public zero-argument constructor and a static "instance" variable, for use by hook implementations.
 SHIM_INSTANCE(AcceptEula)
 
-std::vector<HOOKAPI> Shim_AcceptEula::GetHooks() {
-	std::vector<HOOKAPI> hooks;
+void Shim_AcceptEula::RegisterHooks() {
 	// Register hooks on both RegQueryValueExW and RegQueryValueExA
-	// Order matters for looking up the original function with GetNextProcAddress
-	hooks.push_back(MakeHookInfo("ADVAPI32.DLL", "RegQueryValueExW", Hook_RegQueryValueExW)); // Hook 0
-	hooks.push_back(MakeHookInfo("ADVAPI32.DLL", "RegQueryValueExA", Hook_RegQueryValueExA)); // Hook 1
-	return hooks;
+	// The macro keeps track of the index into the HOOKAPI array for later lookup of the original function by hook function instead of index
+	ADD_HOOK("ADVAPI32.DLL", "RegQueryValueExW", Hook_RegQueryValueExW);
+	ADD_HOOK("ADVAPI32.DLL", "RegQueryValueExA", Hook_RegQueryValueExA);
 }
 
 // Will be called when the program tries to call RegQueryValueExW.
 LSTATUS WINAPI Shim_AcceptEula::Hook_RegQueryValueExW(HKEY hkey, LPCWSTR lpValueName, LPDWORD lpReserved, LPDWORD lpType, LPBYTE lpData, LPDWORD lpcbData) {
-	// Get and call the real RegQueryValueExW
-	auto next = (LSTATUS(WINAPI*)(HKEY, LPCWSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD)) instance->GetNextProcAddress(0);
+	// This macro defines a "next" function pointer variable that can be used to call the original function or next hook
+	DEFINE_NEXT(Hook_RegQueryValueExW);
+	// Call the real RegQueryValueExW
 	auto result = next(hkey, lpValueName, lpReserved, lpType, lpData, lpcbData);
 	// Examine the results before allowing them to return to the program
 	if (result == ERROR_FILE_NOT_FOUND && lpData != NULL && *lpcbData >= sizeof(DWORD) && wcscmp(lpValueName, L"EulaAccepted") == 0) {
@@ -37,7 +36,7 @@ LSTATUS WINAPI Shim_AcceptEula::Hook_RegQueryValueExW(HKEY hkey, LPCWSTR lpValue
 
 // Likewise for RegQueryValueExA - the same as above, but with non-wide-string functions.
 LSTATUS WINAPI Shim_AcceptEula::Hook_RegQueryValueExA(HKEY hkey, LPCSTR lpValueName, LPDWORD lpReserved, LPDWORD lpType, LPBYTE lpData, LPDWORD lpcbData) {
-	auto next = (LSTATUS(WINAPI*)(HKEY, LPCSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD)) instance->GetNextProcAddress(1);
+	DEFINE_NEXT(Hook_RegQueryValueExA);
 	auto result = next(hkey, lpValueName, lpReserved, lpType, lpData, lpcbData);
 	if (result == ERROR_FILE_NOT_FOUND && lpData != NULL && *lpcbData >= sizeof(DWORD) && strcmp(lpValueName, "EulaAccepted") == 0) {
 		*((LPDWORD) lpData) = 1;
