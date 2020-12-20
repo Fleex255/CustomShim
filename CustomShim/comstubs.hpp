@@ -33,13 +33,11 @@ public:
 		}
 	}
 	IFACEMETHOD_(ULONG, AddRef)() override {
-		InterlockedIncrement(&cRef);
-		return cRef;
+		return InterlockedIncrement(&cRef);
 	}
 	IFACEMETHOD_(ULONG, Release)() override {
-		InterlockedDecrement(&cRef);
-		unsigned localRef = cRef;
-		if (cRef == 0) {
+		unsigned localRef = InterlockedDecrement(&cRef);
+		if (localRef == 0) {
 			ASL_PRINTF(ASL_LEVEL_TRACE, "Last reference dropped");
 			delete this;
 		}

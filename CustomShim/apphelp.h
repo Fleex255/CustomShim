@@ -1,6 +1,5 @@
 #pragma once
 #include "framework.h"
-#include <tchar.h>
 
 #define APPHELP_API EXTERN_C DECLSPEC_IMPORT
 

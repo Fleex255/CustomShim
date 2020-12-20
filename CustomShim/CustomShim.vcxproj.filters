@@ -36,10 +36,10 @@
     <ClInclude Include="Shim_FakeSchTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="taskfakes.hpp">
+    <ClInclude Include="comstubs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="comstubs.hpp">
+    <ClInclude Include="FakeSchTask_fakes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,8 +3,6 @@
 #include "apphelp.h"
 #include <vector>
 
-#define FAIL_SHIM_LOAD -1
-
 #define SHIM_INSTANCE(SHIM_NAME) static Shim_##SHIM_NAME* instance = NULL; \
 	Shim_##SHIM_NAME::Shim_##SHIM_NAME() : Shim(L#SHIM_NAME) { \
 		instance = this; \

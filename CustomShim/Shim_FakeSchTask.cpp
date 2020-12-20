@@ -1,6 +1,5 @@
 #include "Shim_FakeSchTask.h"
-#include "taskfakes.hpp"
-#include <string>
+#include "FakeSchTask_fakes.hpp"
 
 SHIM_INSTANCE(FakeSchTask)
 

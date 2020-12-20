@@ -23,8 +23,10 @@ public:
 		return result;
 	}
 	IFACEMETHOD(get_Item)(VARIANT index, IRegisteredTask** ppResult) override {
+		if (!ppResult) return E_INVALIDARG;
 		if (FAILED(VariantChangeType(&index, &index, VARIANT_NOVALUEPROP, VT_I4))) {
 			ASL_PRINTF(ASL_LEVEL_MARK, "Could not coerce index of type %d to I4", index.vt);
+			*ppResult = NULL;
 			return E_INVALIDARG;
 		}
 		if (index.lVal == 1) {

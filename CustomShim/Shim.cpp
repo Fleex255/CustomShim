@@ -24,7 +24,6 @@ PHOOKAPI Shim::Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks) {
 	}
 	if (!ParseCommandLine(commandLine)) {
 		ASL_PRINTF(ASL_LEVEL_TRACE, "%S rejected command-line arguments", name);
-		*pdwNumHooks = FAIL_SHIM_LOAD;
 		return NULL;
 	}
 	auto hooks = GetHooks();

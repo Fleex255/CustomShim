@@ -166,7 +166,7 @@
     <ClInclude Include="apphelp.h" />
     <ClInclude Include="comstubs.hpp" />
     <ClInclude Include="dllmain.h" />
-    <ClInclude Include="taskfakes.hpp" />
+    <ClInclude Include="FakeSchTask_fakes.hpp" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Shim.h" />
     <ClInclude Include="shimlist.h" />
