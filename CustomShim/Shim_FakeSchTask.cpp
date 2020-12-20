@@ -11,11 +11,6 @@ bool Shim_FakeSchTask::ParseCommandLine(LPCSTR args) {
 	// Arguments (the fake task's name, in this case) are saved in the commandLine field by the base class
 }
 
-std::vector<HOOKAPI> Shim_FakeSchTask::GetHooks() {
-	// No imported function hooks, just COM hooks
-	return std::vector<HOOKAPI>();
-}
-
 void Shim_FakeSchTask::HandleNotification(DWORD notification, PVOID data) {
 	// Only interested in the "shim engine fully initialized" notification...
 	if (notification != SE_NOTIFY_INIT) return;

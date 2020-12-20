@@ -10,7 +10,7 @@ public:
 	// Shims should declare a public no-argument constructor, to be defined by the SHIM_INSTANCE macro.
 	Shim_AcceptEula();
 protected:
-	// All shims must implement GetHooks so they can be asked what imported functions they would like to hook.
+	// RegQueryValueEx[A/W] are imported Win32 functions, so they need to be hooked by giving the shim engine HOOKAPI structures.
 	virtual std::vector<HOOKAPI> GetHooks();
 private:
 	// Hook functions must be static. The calling conventions and parameter sizes must match the corresponding real functions exactly.

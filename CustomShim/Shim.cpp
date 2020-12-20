@@ -79,6 +79,11 @@ bool Shim::ParseCommandLine(LPCSTR args) {
 	return true;
 }
 
+std::vector<HOOKAPI> Shim::GetHooks() {
+	// No imported function hooks by default
+	return std::vector<HOOKAPI>();
+}
+
 void Shim::HandleNotification(DWORD notification, PVOID data) {
 	// No response by default
 }

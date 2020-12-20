@@ -37,7 +37,7 @@ protected:
 	// Gives the Shim a chance to validate its arguments before being installed. Returning false deactivates the shim.
 	virtual bool ParseCommandLine(LPCSTR args);
 	// Asks the Shim which imported functions it would like to hook.
-	virtual std::vector<HOOKAPI> GetHooks() = 0;
+	virtual std::vector<HOOKAPI> GetHooks();
 	// Notifies the Shim of a process/engine lifecycle event. Called only after GetHooks.
 	virtual void HandleNotification(DWORD notification, PVOID data);
 	// Gets the real function (or next hook) replaced by the given hook. The index must match the position used in GetHooks.

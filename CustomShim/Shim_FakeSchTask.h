@@ -10,7 +10,6 @@ public:
 	Shim_FakeSchTask();
 protected:
 	virtual bool ParseCommandLine(LPCSTR args);
-	virtual std::vector<HOOKAPI> GetHooks();
 	virtual void HandleNotification(DWORD notification, PVOID data);
 private:
 	// This shim's implementation will cache just one task, reusing it if needed.

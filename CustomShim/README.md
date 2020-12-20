@@ -7,12 +7,14 @@ This project produces an AppCompat shim DLL with two example shims:
 * `FakeSchTask` can be applied to [Autoruns(c)](https://docs.microsoft.com/en-us/sysinternals/downloads/autoruns) to make them see a fake scheduled task with a name specified as the shim command line.
   It demonstrates how to write shims that hook COM member functions or use/validate the shim command line.
   
+The project only supports x86 shims at the moment. It must be compiled in Release mode to be used on machines without the MSVC Debug Runtime.
+  
 To create a new shim:
 
 1. Create a `Shim_[name].h` file declaring a subclass of `Shim` with a name starting with `Shim_`.
     * `#include "Shim.h"`.
     * Declare a public zero-argument constructor.
-	* Declare protected overrides of `GetHooks` and the two other shim lifecycle callbacks if needed.
+	* Declare protected overrides of the shim lifecycle callbacks you need, e.g. `GetHooks`.
 	* Declare private static functions for your hook implementations.
 2. Create a `Shim_[name].cpp` file to implement your shim class.
     * `#include` your shim header file.
