@@ -56,8 +56,13 @@ Names of valid matching information attributes for `EXE` tags can be found by ex
 To compile the XML file named `YourXml.xml` into `YourDatabase.sdb`:
 
     shimdbc Custom YourXml.xml YourDatabase.sdb -op X86_ANY
+	
+Alternatively, you can use the somewhat underdocumented [Application Compatibility Database API](https://docs.microsoft.com/en-us/windows/win32/devnotes/application-compatibility-database)
+to write the SDB yourself.
+The `sdb.sprint` file in this directory is a [SprintDLL](https://github.com/Fleex255/SprintDLL) script that produces an SDB with the same effect as the above XML.
 
-You can then install the SDB like any other, using the [`sdbinst`](https://docs.microsoft.com/en-us/windows/deployment/planning/using-the-sdbinstexe-command-line-tool) utility that comes with Windows:
+Regardless of how you produce the SDB, you can install it like any other, using the
+[`sdbinst`](https://docs.microsoft.com/en-us/windows/deployment/planning/using-the-sdbinstexe-command-line-tool) utility that comes with Windows:
 
     sdbinst YourDatabase.sdb
 
