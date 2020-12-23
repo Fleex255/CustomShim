@@ -3,7 +3,7 @@
 The `CustomShim` Visual Studio C++ project here builds a 32-bit Windows
 [application compatibility shim](https://techcommunity.microsoft.com/t5/ask-the-performance-team/demystifying-shims-or-using-the-app-compat-toolkit-to-make-your/ba-p/374947)
 DLL providing two example shims.
-You can use it as a starting point to create custom shims that intercept calls to Win32 or COM functions by 32-bit applications.
+You can use it as a starting point to create custom shims that intercept calls to Win32 or COM functions made by 32-bit applications.
 It has been tested on Windows 10 2004, but it comes with **absolutely no warranty** and is **definitely not supported by Microsoft**.
 
 ## Installing Custom Shim Modules
@@ -25,39 +25,39 @@ For example, this XML produces an SDB that demonstrates the two example shims on
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <DATABASE NAME="Test Database" ID="{5FB8C914-168C-4B9B-8256-DF8A0F384E3E}">
-	<LIBRARY>
-		<SHIM NAME="AcceptEula" FILE="AcRes.dll" RUNTIME_PLATFORM="X86_ANY" ID="{92E61B85-313A-4880-B6E4-DEF2567413AD}"/>
-		<SHIM NAME="FakeSchTask" FILE="AcRes.dll" RUNTIME_PLATFORM="X86_ANY" ID="{C1CAD7E2-ACAC-4467-8A6A-D437C51D5918}"/>
-	</LIBRARY>
-	<APP NAME="Winobj" ID="{CC4BFC0C-5815-4F08-99C7-4ED13E611FAB}">
-		<EXE NAME="Winobj.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals Winobj" ID="{B49373D9-BC1E-4941-A43B-7B5814C23D93}">
-			<SHIM NAME="AcceptEula"/>
-		</EXE>
-	</APP>
-	<APP NAME="AccessChk" ID="{D45B7077-34B6-463B-B046-38FC68B13430}">
-		<EXE NAME="accesschk.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals AccessChk" ID="{E79328FD-855A-4D8A-92A3-F502E831BD1B}">
-			<SHIM NAME="AcceptEula"/>
-		</EXE>
-	</APP>
-	<APP NAME="Autoruns" ID="{23897D6A-04BA-43D3-879F-C0F1E934635E}">
-		<EXE NAME="autorunsc.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals Autoruns" ID="{12A4EE20-93F4-4C55-B594-A0ABCD3C3283}">
-			<SHIM NAME="FakeSchTask"/>
-		</EXE>
-		<EXE NAME="autoruns.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals Autoruns" ID="{6C4947F7-A387-443D-BB1A-D5BD7C42F908}">
-			<SHIM NAME="FakeSchTask" COMMAND_LINE="It's a FAAAAAKE!"/>
-		</EXE>
-	</APP>
+    <LIBRARY>
+        <SHIM NAME="AcceptEula" FILE="AcRes.dll" RUNTIME_PLATFORM="X86_ANY" ID="{92E61B85-313A-4880-B6E4-DEF2567413AD}"/>
+        <SHIM NAME="FakeSchTask" FILE="AcRes.dll" RUNTIME_PLATFORM="X86_ANY" ID="{C1CAD7E2-ACAC-4467-8A6A-D437C51D5918}"/>
+    </LIBRARY>
+    <APP NAME="Winobj" ID="{CC4BFC0C-5815-4F08-99C7-4ED13E611FAB}">
+        <EXE NAME="Winobj.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals Winobj" ID="{B49373D9-BC1E-4941-A43B-7B5814C23D93}">
+            <SHIM NAME="AcceptEula"/>
+        </EXE>
+    </APP>
+    <APP NAME="AccessChk" ID="{D45B7077-34B6-463B-B046-38FC68B13430}">
+        <EXE NAME="accesschk.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals AccessChk" ID="{E79328FD-855A-4D8A-92A3-F502E831BD1B}">
+            <SHIM NAME="AcceptEula"/>
+        </EXE>
+    </APP>
+    <APP NAME="Autoruns" ID="{23897D6A-04BA-43D3-879F-C0F1E934635E}">
+        <EXE NAME="autorunsc.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals Autoruns" ID="{12A4EE20-93F4-4C55-B594-A0ABCD3C3283}">
+            <SHIM NAME="FakeSchTask"/>
+        </EXE>
+        <EXE NAME="autoruns.exe" RUNTIME_PLATFORM="X86_ANY" PRODUCT_NAME="Sysinternals Autoruns" ID="{6C4947F7-A387-443D-BB1A-D5BD7C42F908}">
+            <SHIM NAME="FakeSchTask" COMMAND_LINE="It's a FAAAAAKE!"/>
+        </EXE>
+    </APP>
 </DATABASE>
 ```
 
 Names of valid matching information attributes for `EXE` tags can be found by examining existing fix entries in the Compatibility Administrator.
 `ID` attributes can omitted, in which case ShimDBC will update the input XML file to generate them.
-If a call is not intercepted due to the DLL that makes it ("inex policy"), you can add `INCLUDE` tags inside `SHIM` definitions, e.g. `<INCLUDE MODULE="clr.dll"/>` for .NET applications.
+If a call is not intercepted due to the DLL that makes it ("inex policy"), you can add `INCLUDE` tags inside the library `SHIM` definitions, e.g. `<INCLUDE MODULE="clr.dll"/>` for .NET applications.
 
 To compile the XML file named `YourXml.xml` into `YourDatabase.sdb`:
 
     shimdbc Custom YourXml.xml YourDatabase.sdb -op X86_ANY
-	
+    
 Alternatively, you can use the somewhat underdocumented [Application Compatibility Database API](https://docs.microsoft.com/en-us/windows/win32/devnotes/application-compatibility-database)
 to write the SDB yourself.
 The `sdb.sprint` file in this directory is a [SprintDLL](https://github.com/Fleex255/SprintDLL) script that produces an SDB with the same effect as the above XML.
@@ -84,4 +84,4 @@ To enable logging messages and reports from the shim engine (`apphelp.dll`):
 Shim engine diagnostics are always saved as `%TEMP%\AslLog_[report type]_[process].exe_[pid].txt`.
 `ApphelpDebug` logs have the log messages; `shimengstate` reports may also be interesting.
 
-**Warning:** Enabling a lot of logging, especially with .NET processes, can manifest a deadlock bug in the shim engine that brings down the process with a breakpoint-related exit code: 0x80000003 or 0x4000001F.
+**Warning:** Enabling lots of logging at once, especially with .NET processes, can manifest a deadlock bug in the shim engine that brings down the process with a breakpoint-related exit code: 0x80000003 or 0x4000001F.
