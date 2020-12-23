@@ -52,6 +52,7 @@ For example, this XML produces an SDB that demonstrates the two example shims on
 
 Names of valid matching information attributes for `EXE` tags can be found by examining existing fix entries in the Compatibility Administrator.
 `ID` attributes can omitted, in which case ShimDBC will update the input XML file to generate them.
+If a call is not intercepted due to the DLL that makes it ("inex policy"), you can add `INCLUDE` tags inside `SHIM` definitions, e.g. `<INCLUDE MODULE="clr.dll"/>` for .NET applications.
 
 To compile the XML file named `YourXml.xml` into `YourDatabase.sdb`:
 
@@ -82,3 +83,5 @@ To enable logging messages and reports from the shim engine (`apphelp.dll`):
 
 Shim engine diagnostics are always saved as `%TEMP%\AslLog_[report type]_[process].exe_[pid].txt`.
 `ApphelpDebug` logs have the log messages; `shimengstate` reports may also be interesting.
+
+**Warning:** Enabling a lot of logging, especially with .NET processes, can manifest a deadlock bug in the shim engine that brings down the process with a breakpoint-related exit code: 0x80000003 or 0x4000001F.
