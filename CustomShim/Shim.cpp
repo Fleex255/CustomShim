@@ -19,7 +19,7 @@ LPCWSTR Shim::GetName() {
 PHOOKAPI Shim::Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks) {
 	if (pszCommandLine) {
 		// The shim engine will free the command line string after calling GetHookAPIs, so make a copy
-		int cch = strlen(pszCommandLine) + 1;
+		size_t cch = strlen(pszCommandLine) + 1;
 		LPSTR copied = new char[cch];
 		StringCchCopyA(copied, cch, pszCommandLine);
 		commandLine = copied;
@@ -41,7 +41,7 @@ PHOOKAPI Shim::Install(LPCSTR pszCommandLine, PDWORD pdwNumHooks) {
 		pHookApi[i] = (*pendingHooks)[i];
 #pragma warning(pop)
 	}
-	*pdwNumHooks = pendingHooks->size();
+	*pdwNumHooks = (DWORD) pendingHooks->size();
 	ASL_PRINTF(ASL_LEVEL_TRACE, "%S installed %d hooks", name, *pdwNumHooks);
 	delete pendingHooks;
 	pendingHooks = NULL;
@@ -75,7 +75,7 @@ int Shim::GetNextHookIndex() {
 		ASL_PRINTF(ASL_LEVEL_ERROR, "GetNextHookIndex can only be called during RegisterHooks");
 		return -1;
 	}
-	return pendingHooks->size();
+	return (int) pendingHooks->size();
 }
 
 PVOID Shim::GetNextProcAddress(int hookIndex) {

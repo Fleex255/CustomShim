@@ -7,5 +7,5 @@ If you need more `apphelp.dll` functions than the seven already imported:
 
 1. Add function stubs with the correct names, calling conventions, and parameter sizes to `functions.cpp`.
 2. Add corresponding lines to `module.def`.
-3. Compile in the Debug x86 configuration.
-4. Copy `apphelp.lib` from the `Debug` folder here to the `libs` folder of the main project.
+3. Compile in the Debug x86 (or x64 for 64-bit) configuration.
+4. Copy `apphelp.lib` from the `Debug` folder (`x64\Debug` for 64-bit) here to the `libs` (`libs64` for 64-bit) folder of the main project.

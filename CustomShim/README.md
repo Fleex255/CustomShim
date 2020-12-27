@@ -7,7 +7,8 @@ This project produces an AppCompat shim DLL with two example shims:
 * `FakeSchTask` can be applied to [Autoruns(c)](https://docs.microsoft.com/en-us/sysinternals/downloads/autoruns) to make them see a fake scheduled task with a name specified as the shim command line.
   It demonstrates how to write shims that hook COM member functions or use/validate the shim command line.
   
-The project only supports x86 shims at the moment. It must be compiled in Release mode to be used on machines without the MSVC Debug Runtime.
+The project must be compiled in Release mode to be used on machines without the MSVC Debug Runtime.
+Shim module bitness must match that of the applications it provides shims for.
   
 To create a new shim:
 
